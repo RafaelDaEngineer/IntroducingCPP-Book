@@ -3,5 +3,6 @@ project(IntroToCPPBook)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(IntroToCPPBook main.cpp
+add_executable(IntroToCPPBook
+        exception_practice.cpp
 )
