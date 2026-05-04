@@ -4,5 +4,9 @@ project(IntroToCPPBook)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(IntroToCPPBook
-        vector_input.cpp
+        input.h
+        input.cpp
+        main.cpp
+        analysis.h
+        analysis.cpp
 )
