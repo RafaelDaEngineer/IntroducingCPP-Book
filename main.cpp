@@ -1,39 +1,62 @@
-#include <iostream>
-#include <istream>
-#include <vector>
+#include <ranges>
 #include <algorithm>
+#include <functional>
+#include <iostream>
+#include <vector>
+#include <ios>
 
-#include "input.h"
 #include "analysis.h"
+#include "input.h"
 
-std::vector<double> get_prices(std::istream& input_stream) {
-    std::cout << "Please enter some numbers. \n>";
-    std::vector<double> numbers{};
-    auto number {stock_prices::get_number(input_stream)};
-    while(number.has_value()) {
-        numbers.push_back(number.value());
-        std::cout << ">";
-        number = stock_prices::get_number(input_stream);
-    }
-    return numbers;
-}
+
 
 int main() {
     stock_prices::test_analysis();
-    auto prices = get_prices(std::cin);
-    if (!prices.empty()) {
-        auto result {std::ranges::minmax(prices)};
-        std::cout << "min " << result.min << '\n';
-        std::cout << "max " << result.max << '\n';
+
+    stock_prices::test_input();
+
+    std::cout << "Please enter some numbers.\n";
+    auto prompt = [] (){std::cout << '>';};
+    auto prices = stock_prices::get_prices(std::cin, prompt);
+    std::cout << "Got " << prices.size() << " price(s).\n";
+
+    std::cout << "The following are valid: \n";
+    auto valid_prices {std::ranges::views::filter(prices, [](double p){return p >= 0.0;})};
+
+    for (const double price: valid_prices) {
+        std::cout << price << "\n";
     }
+
+    const auto valid_prices_as_vector = std::ranges::to<std::vector>(valid_prices);
+    const double mean = stock_prices::average(valid_prices_as_vector);
+    std::cout << "With average " << mean << "\n";
+
+    double potential_profit = stock_prices::profit_on_first_uptick(valid_prices_as_vector);
+    std::cout << "Potential profit " << potential_profit << "\n";
+
+    const double required_profit = 2.0;
+    bool possible {stock_prices::required_profit_possible(valid_prices_as_vector, required_profit)};
+    std::cout << "Required profit possible " << std::boolalpha << possible << "\n";
+
+    // if (!prices.empty()) {
+    //     auto result {std::ranges::minmax(prices)};
+    //     std::cout << "min " << result.min << '\n';
+    //     std::cout << "max " << result.max << '\n';
+    // }
+
     // auto invalid {std::ranges::count_if(prices, stock_prices::negative)};
-    const auto erased {std::erase_if(prices, stock_prices::negative)};
-    std::cout << erased << " prices below zero \n";
 
-    std::cout << "Average " << stock_prices::average(prices) << '\n';
 
-    std::ranges::sort(prices, std::ranges::greater{});
-    for (const auto price : prices) {
-        std::cout << price << '\n';
-    }
+    // every lambda has unique type
+
+    // auto lambda{[](const double value){return value < 0.0;}};
+    // const auto erased {std::erase_if(prices, lambda)};
+    // std::cout << erased << " prices below zero \n";
+    //
+    // std::cout << "Average " << stock_prices::average(prices) << '\n';
+    //
+    // std::ranges::sort(prices, std::ranges::greater{});
+    // for (const auto price : prices) {
+    //     std::cout << price << '\n';
+    // }
 }

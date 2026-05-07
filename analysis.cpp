@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <vector>
 #include <numeric>
+#include <ranges>
 
 namespace stock_prices {
     std::vector<double> remove_invalid(std::vector<double> prices) {
@@ -33,4 +34,26 @@ namespace stock_prices {
 
         assert(average({1.0}) == 1.0);
     }
-}
+
+    double profit_on_first_uptick(const std::vector<double>& prices) {
+        if (prices.empty()) {
+            throw std::invalid_argument("Prices cannot be empty");
+        }
+        const double first = prices.front();
+        auto where = std::ranges::find_if(prices, [first](double price) { return price > first; });
+        if (where != prices.end()) {
+            return *where - first;
+        } else {
+            return 0.0;
+        }
+    }
+
+    bool required_profit_possible(const std::vector<double>& prices, double required_profit) {
+        const double first{prices.front()};
+        // to capture everything by value in lambda use [=]
+        // to capture everything by reference use [&]
+        // mutable keyword or pass by reference to mutate
+        auto where = std::ranges::find_if(prices, [first, required_profit] (double price) {return (price - first) >= required_profit;});
+        return where != prices.end();
+    }
+} // namespace stock_prices
