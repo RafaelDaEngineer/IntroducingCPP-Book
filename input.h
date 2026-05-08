@@ -21,6 +21,8 @@ namespace stock_prices {
 
     std::vector<double> get_prices(double price, size_t count, const std::function<double()> &next_price);
 
+    std::vector<double> read_from_file(const std::string &filename);
+
     void test_input();
 } // namespace stock_prices
 #endif // INTROTOCPPBOOK_INPUT_H

@@ -2,6 +2,8 @@
 #include <cassert>
 #include <limits>
 #include <sstream>
+#include <fstream>
+#include <stdexcept>
 
 #include <algorithm>
 #include <random>
@@ -67,6 +69,15 @@ namespace stock_prices {
         prices.reserve(count);
         std::ranges::generate_n(std::back_inserter(prices), count, next_price);
         return prices;
+    }
+
+    std::vector<double> read_from_file(const std::string &filename) {
+        std::ifstream file{filename};
+        if (file) {
+           return get_prices(file, [](){});
+        } else {
+            throw std::runtime_error("Failed to read from file");
+        }
     }
 
     void test_input() {

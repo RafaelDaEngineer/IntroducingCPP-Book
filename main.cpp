@@ -1,56 +1,58 @@
-#include <ranges>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <functional>
-#include <iostream>
-#include <vector>
 #include <ios>
+#include <iostream>
 #include <random>
+#include <ranges>
+#include <stdexcept>
+#include <vector>
 
 #include "analysis.h"
 #include "input.h"
 
 void views_experiment() {
-    const std::vector prices {3.76, 1.5, -1.0, 3.0, 4.0, -2.0, 99.4};
-    const double required_price {4.75};
-    auto non_negative {[](double price) {return price >= 0.0;}};
-    auto too_cheap {[required_price](double price) {return price < required_price;}};
-    auto no_good {prices | std::ranges::views::filter(non_negative) | std::views::take_while(too_cheap)};
+    const std::vector prices{3.76, 1.5, -1.0, 3.0, 4.0, -2.0, 99.4};
+    const double required_price{4.75};
+    auto non_negative{[](double price) { return price >= 0.0; }};
+    auto too_cheap{[required_price](double price) { return price < required_price; }};
+    auto no_good{prices | std::ranges::views::filter(non_negative) | std::views::take_while(too_cheap)};
     std::cout << "Too cheap: \n";
-    for (const double price : no_good) {
+    for (const double price: no_good) {
         std::cout << price << '\n';
     }
 }
 
 void random_experiment() {
     // CTAD class template argument deduction
-    std::random_device rd {};
-    std::default_random_engine generator{rd()};         // seed
+    std::random_device rd{};
+    std::default_random_engine generator{rd()}; // seed
     std::uniform_int_distribution distribution{1, 6}; // engine
-    const int roll = distribution(generator);          // distribution
+    const int roll = distribution(generator); // distribution
     std::cout << "You rolled a " << roll << '\n';
 }
 
 void literal_experiment() {
-    auto as_float {0.1f + 0.2f};
-    auto as_double {0.1 + 0.2};
-    auto as_long_double {0.1L + 0.2L};
-    auto as_int {1 + 2};
-    auto as_long {1L + 2L};
-    auto as_long_long {1LL + 2LL};
-
+    auto as_float{0.1f + 0.2f};
+    auto as_double{0.1 + 0.2};
+    auto as_long_double{0.1L + 0.2L};
+    auto as_int{1 + 2};
+    auto as_long{1L + 2L};
+    auto as_long_long{1LL + 2LL};
 }
 
 void trading_game() {
-    const double start_price {100.0};
+    const double start_price{100.0};
     std::cout << "Stock bought for: " << start_price << '\n';
-    auto prices {stock_prices::get_prices(start_price, 10)};
-    for (auto price : prices) {
+    auto prices{stock_prices::get_prices(start_price, 10)};
+    for (auto price: prices) {
         std::cout << "Current price: " << price << '\n';
         std::cout << "Press (s) to sell \n";
         char choice{};
         std::cin >> choice;
         if (choice == 's') {
-            const double profit {price - start_price};
+            const double profit{price - start_price};
             std::cout << "Profit: " << profit << '\n';
             break;
         }
@@ -58,19 +60,49 @@ void trading_game() {
     std::cout << "Game over \n";
 }
 
+void write_to_file(const std::vector<double> &prices, const std::string &filename) {
+    const std::filesystem::path path{std::filesystem::current_path()};
+    const auto fully_pathed_filename{path / filename};
+    std::ofstream file{filename, std::ios::out | std::ios::app}; // Tries to open file for output
+    if (file) { // Check that file opened OK
+        for (const auto price: prices) {
+            file << price << '\n'; // Writes prices
+        }
+        std::cout << "Wrote to: " << fully_pathed_filename << '\n';
+    } else {
+        auto error_message{"Failed to write to " + fully_pathed_filename.string()};
+        throw std::runtime_error(error_message);
+    }
+}
+
+
+
 int main() {
 
     // random_experiment();
 
     // stock_prices::test_analysis();
 
-    stock_prices::test_input();
+    // stock_prices::test_input();
 
     // trading_game();
 
-
-
-
+    try {
+        double first_price{100.0};
+        const std::string filename{"prices.txt"};
+        if (std::filesystem::exists(filename)) {
+            auto prices {stock_prices::read_from_file(filename)};
+            if (!prices.empty()) {
+                first_price = prices.back();
+                std::cout << "Read " << prices.size() << " prices. \n";
+            }
+        }
+        write_to_file(stock_prices::get_prices(first_price, 10, 0.05), filename);
+        return 0;
+    } catch (const std::exception &e) {
+        std::cout << e.what() << '\n';
+        return 1;
+    }
     std::random_device rd{};
     std::default_random_engine gen{rd()};
     std::normal_distribution distrib;
@@ -84,15 +116,12 @@ int main() {
         return price;
     }};
 
-    const auto more_prices {stock_prices::get_prices(100.0, 10, next_price)};
+    const auto more_prices{stock_prices::get_prices(100.0, 10, next_price)};
 
 
-
-
-
-    const auto prices {stock_prices::get_prices(100.0, 10, 0.05)};
+    const auto prices{stock_prices::get_prices(100.0, 10, 0.05)};
     std::cout << "Got prices: \n";
-    for (double price : prices) {
+    for (double price: prices) {
         std::cout << price << '\n';
     }
 
@@ -102,7 +131,7 @@ int main() {
     // std::cout << "Got " << prices.size() << " price(s).\n";
 
     std::cout << "The following are valid: \n";
-    auto valid_prices {std::ranges::views::filter(prices, [](double p){return p >= 0.0;})};
+    auto valid_prices{std::ranges::views::filter(prices, [](double p) { return p >= 0.0; })};
 
     for (const double price: valid_prices) {
         std::cout << price << "\n";
@@ -116,7 +145,7 @@ int main() {
     std::cout << "Potential profit " << potential_profit << "\n";
 
     const double required_profit = 2.0;
-    bool possible {stock_prices::required_profit_possible(valid_prices_as_vector, required_profit)};
+    bool possible{stock_prices::required_profit_possible(valid_prices_as_vector, required_profit)};
     std::cout << "Required profit possible " << std::boolalpha << possible << "\n";
 
     // if (!prices.empty()) {
