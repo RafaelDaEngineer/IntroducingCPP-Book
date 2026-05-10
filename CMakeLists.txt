@@ -10,4 +10,5 @@ add_executable(IntroToCPPBook
         input.h
         stock.h
         main.cpp
+        stock.cpp
 )

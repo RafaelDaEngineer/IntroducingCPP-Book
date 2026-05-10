@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "analysis.h"
-#include "input.h"
+#include "../analysis.h"
+#include "../input.h"
 
 void views_experiment() {
     const std::vector prices{3.76, 1.5, -1.0, 3.0, 4.0, -2.0, 99.4};
