@@ -1,7 +1,7 @@
 #include <ostream>
 
 
-#include "input.h"
+#include "../input.h"
 
 int main() {
     const auto prices = stock_prices::get_prices(100.0, 10, 0.05);

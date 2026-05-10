@@ -8,5 +8,6 @@ add_executable(IntroToCPPBook
         analysis.h
         input.cpp
         input.h
+        stock.h
         main.cpp
 )
