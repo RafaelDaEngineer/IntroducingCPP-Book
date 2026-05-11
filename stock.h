@@ -1,8 +1,8 @@
 #ifndef INTROTOCPPBOOK_STOCK_H
 #define INTROTOCPPBOOK_STOCK_H
 
-#include <string>
 #include <random>
+#include <string>
 
 namespace stock_prices {
     class Stock {
@@ -16,6 +16,16 @@ namespace stock_prices {
     public:
         // Declares constructor but does not define it
         Stock(const std::string &stock_name, double start_price, double start_volatility);
+
+        // Copy constructor
+        Stock(const Stock &other) = delete;
+
+        // Move contructor
+        // Need to explicitly write one yourself
+        Stock(Stock &&other) noexcept = default;
+
+        Stock & operator = (const Stock &other) = delete;
+        Stock & operator = (Stock &&other) noexcept = default;
 
         // Defines get name function which is ok because it is a short function
         std::string get_name() const { return name; }
