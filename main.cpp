@@ -1,10 +1,20 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <string>
 
 #include "stock.h"
 int main(int argc, char *argv[]) {
     using namespace stock_prices;
+
+    // Gets declared in the stack
+    // Stack - a place in memory for local variables and function calls
+    int number = 42;
+
+    // Can vary in size at runtime
+    // Gets stored in heap
+    // Another part of memory that can be allocated on demand
+    std::string message = "Tea";
 
     std::vector<Stock> stocks;
     stocks.push_back(Stock{"Coffee", 4.8, 0.0113});
